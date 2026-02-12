@@ -6,6 +6,10 @@
 #ifndef stationmapper_h__
 #define stationmapper_h__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ==================  Data types  ================================== */
 
 // Map binary image with related metadata 
@@ -77,4 +81,8 @@ void draw_point_by_lat_lon(peace_of_map_t *map, float lat, float lon, int r, int
 // Search nearest station from the given stations list to the specified geographical point.
 station_t get_nearest_station(stations_list_t *stations, float lat, float lon);
  
+#ifdef __cplusplus
+}
+#endif
+
 #endif  // stationmapper_h__
