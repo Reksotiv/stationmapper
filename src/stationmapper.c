@@ -86,37 +86,57 @@ void draw_point_by_lat_lon(peace_of_map_t * map, float lat, float lon, int r, in
 }
 
 
-stations_list_t load_stations(const char * stations_list_filename) {
+stations_list_t load_stations(const char *stations_list_filename) {
     stations_list_t stations_list;
     stations_list.num_stations = 0;
+    stations_list.stations = NULL;
 
-    // Count entries
-    FILE *fp; 
-    fp = fopen(stations_list_filename, "r");
-    fscanf(fp, "%*[^\n]\n");
-    while(!feof(fp))
-    {
-        fscanf(fp, "%*[^\n]\n");
+    // Open file and check for errors
+    FILE *fp = fopen(stations_list_filename, "r");
+    if (fp == NULL) {
+        printf("Failed to open stations file: %s\n", stations_list_filename);
+        return stations_list;
+    }
+
+    // Count entries (skip header first)
+    char line[512];
+    fgets(line, sizeof(line), fp);  // Skip header
+    
+    while (fgets(line, sizeof(line), fp) != NULL) {
         stations_list.num_stations++;
     }
-    fclose(fp);
-    stations_list.num_stations = stations_list.num_stations;
-
-    // Read stations
+    
+    // Allocate memory
     stations_list.stations = malloc(stations_list.num_stations * sizeof(station_t));
-    fp = fopen(stations_list_filename, "r");
-    fscanf(fp, "%*[^\n]\n");    
-    for (int i = 0; i < stations_list.num_stations; i++)
-    {
-        char line[256];
-        fgets(line, 256, fp);
-        sscanf(line, "%d,%s,%f,%f", &stations_list.stations[i].id,
-                                    stations_list.stations[i].name,
-                                    &stations_list.stations[i].lat,
-                                    &stations_list.stations[i].lon);
+    if (stations_list.stations == NULL) {
+        printf("Memory allocation failed\n");
+        fclose(fp);
+        stations_list.num_stations = 0;
+        return stations_list;
     }
-    fclose(fp);
 
+    // Rewind and read stations
+    rewind(fp);
+    fgets(line, sizeof(line), fp);  // Skip header again
+    
+    for (int i = 0; i < stations_list.num_stations; i++) {
+        if (fgets(line, sizeof(line), fp) == NULL) break;
+        
+        // Parse CSV manually to handle spaces in names
+        char *token = strtok(line, ",");
+        if (token) stations_list.stations[i].id = atoi(token);
+        
+        token = strtok(NULL, ",");
+        if (token) strncpy((char*)stations_list.stations[i].name, token, 255);
+        
+        token = strtok(NULL, ",");
+        if (token) stations_list.stations[i].lat = atof(token);
+        
+        token = strtok(NULL, ",\n");
+        if (token) stations_list.stations[i].lon = atof(token);
+    }
+    
+    fclose(fp);
     return stations_list;
 }
 
