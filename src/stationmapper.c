@@ -143,13 +143,26 @@ stations_list_t load_stations(const char *stations_list_filename) {
 }
 
 
-float get_distance_in_km(float lat_1, float lon_1, float lat_2, float lon_2) {
-    return sqrt((lat_1 - lat_2) * (lat_1 - lat_2) + (lon_1 - lon_2) * (lon_1 - lon_2));
+float deg_to_rad(float deg) {
+  return deg * (3.1415 / 180);
 }
 
 
-float deg_to_rad(float deg) {
-  return deg * (3.1415 / 180);
+float get_distance_in_km(float lat_1, float lon_1, float lat_2, float lon_2) {
+    const float R = 6371.0f;
+    
+    float dlat = deg_to_rad(lat_2 - lat_1);
+    float dlon = deg_to_rad(lon_2 - lon_1);
+    float lat1 = deg_to_rad(lat_1);
+    float lat2 = deg_to_rad(lat_2);
+    
+    float a = sinf(dlat / 2) * sinf(dlat / 2) +
+              cosf(lat1) * cosf(lat2) *
+              sinf(dlon / 2) * sinf(dlon / 2);
+    
+    float c = 2.0f * atan2f(sqrtf(a), sqrtf(1.0f - a));
+    
+    return R * c;
 }
 
 
