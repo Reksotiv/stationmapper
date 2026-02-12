@@ -60,13 +60,15 @@ void draw_pixel(unsigned char * image, int width, int x, int y, int r, int g, in
 
 void add_pixel(unsigned char * image, int width, int x, int y, int r, int g, int b, int a)
 {
-	image[(width * y + x) * 4] += r * a / 255;
-	image[(width * y + x) * 4 + 1] += g * a / 255;
-	image[(width * y + x) * 4 + 2] += b * a / 255;
+    int idx = (width * y + x) * 4;
+
+    image[idx]     = image[idx] + (r - image[idx]) * a / 255;
+    image[idx + 1] = image[idx + 1] + (g - image[idx + 1]) * a / 255;
+    image[idx + 2] = image[idx + 2] + (b - image[idx + 2]) * a / 255;
 }
 
 
-void draw_point_by_lat_lon(peace_of_map_t * map, float lat, float lon, int r, int g, int b) {
+void draw_point_by_lat_lon(peace_of_map_t * map, float lat, float lon, int r, int g, int b, int a) {
     int x = map->width * ((lon - map->bottom_right_lon) / (map->top_left_lon - map->bottom_right_lon));
     int y = map->height - map->height * ((lat - map->bottom_right_lat) / (map->top_left_lat - map->bottom_right_lat)) - 1;
     if ((x < 0) || (x >= map->width) || (y < 0) || (y > map->height)) {
@@ -80,7 +82,7 @@ void draw_point_by_lat_lon(peace_of_map_t * map, float lat, float lon, int r, in
             if ((x + i < 0) || (x + i >= map->width) || (y + j < 0) || (y + j > map->height)) {
                 continue;
             }
-            add_pixel(map->image, map->width, x + i, y + j, r, g, b, 32);
+            add_pixel(map->image, map->width, x + i, y + j, r, g, b, a);
         }
     }
 }

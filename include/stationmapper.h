@@ -71,7 +71,7 @@ float get_distance_in_km(float lat_1, float lon_1, float lat_2, float lon_2);
 
 // Draw point (square) specified by latitude and longitude on the map.
 // The color of the point can be specified.
-void draw_point_by_lat_lon(peace_of_map_t *map, float lat, float lon, int r, int g, int b);
+void draw_point_by_lat_lon(peace_of_map_t *map, float lat, float lon, int r, int g, int b, int a);
 
 
 // Search nearest station from the given stations list to the specified geographical point.
